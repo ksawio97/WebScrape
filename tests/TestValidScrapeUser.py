@@ -15,6 +15,10 @@ class TestValidScrapeUser(unittest.TestCase):
         info = scrapeUser.twitchInfo("twitch")
         self.infoIsNotNone(info)
 
+    def test_steamInfo(self):
+        info = scrapeUser.steamInfo("steam")
+        self.infoIsNotNone(info)
+
     def infoIsNotNone(self, info):
         self.assertIsNotNone(info)
         self.assertIsNotNone(info.name)

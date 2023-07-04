@@ -3,11 +3,14 @@ from webscrape import target
 
 searchTarget = target.getTarget()
 if __name__ == "__main__":
-    info = scrapeUser.instagramInfo(searchTarget)
-    print(info)
+    # info = scrapeUser.instagramInfo(searchTarget)
+    # print(info)
 
-    info = scrapeUser.githubInfo(searchTarget)
-    print(info)
+    # info = scrapeUser.githubInfo(searchTarget)
+    # print(info)
 
-    info = scrapeUser.twitchInfo(searchTarget)
+    # info = scrapeUser.twitchInfo(searchTarget)
+    # print(info)
+
+    info = scrapeUser.steamInfo(searchTarget)
     print(info)

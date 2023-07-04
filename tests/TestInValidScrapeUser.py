@@ -16,5 +16,9 @@ class TestInValidScrapeUser(unittest.TestCase):
         info = scrapeUser.twitchInfo(probablyInValidAccount)
         self.assertIsNone(info)
 
+    def test_steamInfo(self):
+        info = scrapeUser.steamInfo(probablyInValidAccount)
+        self.assertIsNone(info)
+
 if __name__ == '__main__':
     unittest.main()

@@ -3,10 +3,12 @@ from . import scrape
 
 import json
 
+#TO DO delete this functions and create one that will get data from db and then look for accounts
 def instagramInfo(name: str) -> Info:
     url = f"https://www.instagram.com/{name}" 
     soup = scrape.getSoupPageContent(url)
-
+    if soup == None: return None
+    
     result = scrape.scrape(soup, "script", {"type": "application/ld+json"})
     if result == None:
         return None
@@ -17,8 +19,7 @@ def instagramInfo(name: str) -> Info:
 def githubInfo(name: str) -> Info:
     url = f"https://github.com/{name}" 
     soup = scrape.getSoupPageContent(url)
-
-    if soup.contents[0] == "Not Found": return None
+    if soup == None: return None
 
     return Info(
         name = name,
@@ -29,6 +30,7 @@ def githubInfo(name: str) -> Info:
 def twitchInfo(name: str) -> Info:
     url = f"https://www.twitch.tv/{name}" 
     soup = scrape.getSoupPageContent(url)
+    if soup == None: return None
 
     desciptionResult = scrape.scrape(soup, "meta", {"name": "twitter:description"})
     imageResult = scrape.scrape(soup, "meta", {"name": "twitter:description"})
@@ -36,7 +38,24 @@ def twitchInfo(name: str) -> Info:
     if desciptionResult is None or  imageResult is None: return None
     return Info(
         name = name,
-        description = scrape.scrape(soup, "meta", {"name": "twitter:description"})["content"],
-        image = scrape.scrape(soup, "meta", {"name": "twitter:image"})["content"],
+        description = desciptionResult["content"],
+        image = imageResult["content"],
+        url = url
+    )
+
+def steamInfo(name: str) -> Info:
+    url = f"https://steamcommunity.com/id/{name}"
+    soup = scrape.getSoupPageContent(url)
+    if soup == None: return None
+
+    nameResult = scrape.scrape(soup, "meta", {"property": "twitter:title"})
+    desciptionResult = scrape.scrape(soup, "meta", {"property": "twitter:description"})
+    imageResult = scrape.scrape(soup, "meta", {"name": "twitter:image"})
+
+    if nameResult is None or  imageResult is None: return None
+    return Info(
+        name = nameResult["content"] if nameResult is not None else "",
+        description = desciptionResult["content"] if desciptionResult is not None else "",
+        image = imageResult["content"] if imageResult is not None else "",
         url = url
     )
