@@ -1,61 +1,37 @@
 from .data.info import Info
 from . import scrape
 
-import json
+import re
 
-#TO DO delete this functions and create one that will get data from db and then look for accounts
-def instagramInfo(name: str) -> Info:
-    url = f"https://www.instagram.com/{name}" 
-    soup = scrape.getSoupPageContent(url)
-    if soup == None: return None
-    
-    result = scrape.scrape(soup, "script", {"type": "application/ld+json"})
-    if result == None:
-        return None
-    jsonResult = json.loads(result.string)
-
-    return Info(name=jsonResult["author"]["name"], description=jsonResult["description"], image=jsonResult["author"]["image"], url=url)
-
-def githubInfo(name: str) -> Info:
-    url = f"https://github.com/{name}" 
+def readInfo(username: str, websiteInfo: dict) -> Info:
+    url = websiteInfo["url"].replace("{}", username)
     soup = scrape.getSoupPageContent(url)
     if soup == None: return None
 
-    return Info(
-        name = name,
-        description = scrape.scrape(soup, "meta", {"name": "description"}, "")["content"],
-        image = scrape.scrape(soup, "meta", {"name": "twitter:image:src"})["content"],
-        url = url)
+    info = Info(name=websiteInfo["name"], url=url, username=None, description=None)
+    if "scrape" not in websiteInfo.keys(): return info
 
-def twitchInfo(name: str) -> Info:
-    url = f"https://www.twitch.tv/{name}" 
-    soup = scrape.getSoupPageContent(url)
-    if soup == None: return None
+    for _, (key, scrapeInfo) in enumerate(websiteInfo["scrape"].items()):
+        result = scrape.scrape(soup, scrapeInfo["tag"], {scrapeInfo["findId"]: scrapeInfo["findValue"]})
+        keys = scrapeInfo.keys()
+        #sometimes errorValue is not finding result
+        if result is None:
+            if "errorValue" in keys and scrapeInfo["errorValue"] == str(None):
+                return None
+            continue
+        
+        #user not found! (bsc of special error)
+        if "errorValue" in keys and scrapeInfo["errorValue"] == result["content"]: 
+            return None
 
-    desciptionResult = scrape.scrape(soup, "meta", {"name": "twitter:description"})
-    imageResult = scrape.scrape(soup, "meta", {"name": "twitter:description"})
+        if "regex" in keys:
+            content = re.match(scrapeInfo["regex"], result['content'])
+        else:
+            content = result['content']
+        
+        exec(f"info.{key} = '{content}'")
 
-    if desciptionResult is None or  imageResult is None: return None
-    return Info(
-        name = name,
-        description = desciptionResult["content"],
-        image = imageResult["content"],
-        url = url
-    )
+    if info.username is None:
+        info.username = username
 
-def steamInfo(name: str) -> Info:
-    url = f"https://steamcommunity.com/id/{name}"
-    soup = scrape.getSoupPageContent(url)
-    if soup == None: return None
-
-    nameResult = scrape.scrape(soup, "meta", {"property": "twitter:title"})
-    desciptionResult = scrape.scrape(soup, "meta", {"property": "twitter:description"})
-    imageResult = scrape.scrape(soup, "meta", {"name": "twitter:image"})
-
-    if nameResult is None or  imageResult is None: return None
-    return Info(
-        name = nameResult["content"] if nameResult is not None else "",
-        description = desciptionResult["content"] if desciptionResult is not None else "",
-        image = imageResult["content"] if imageResult is not None else "",
-        url = url
-    )
+    return info
