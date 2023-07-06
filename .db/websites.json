@@ -26,12 +26,12 @@
         "name": "steam",
         "url": "https://steamcommunity.com/id/{}",
         "scrape": {
-            "name": {
+            "username": {
                 "tag": "meta",
                 "findId": "property",
                 "findValue": "twitter:title",
                 "errorValue": "Steam Community :: Error",
-                "regex": "\\w*$"
+                "regex": "\\b(\\w+)$"
             },
             "description": {
                 "tag": "meta",
@@ -60,5 +60,9 @@
     "4": {
         "name": "rumble",
         "url": "https://rumble.com/user/{}"
+    },
+    "5": {
+        "name": "kick",
+        "url": "https://kick.com/{}"
     }
 }

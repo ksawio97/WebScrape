@@ -7,5 +7,5 @@ def scrape(soup: bs4.BeautifulSoup, tag: str, args: dict, emergencyReturnValue=N
 
 def getSoupPageContent(url) -> bs4.BeautifulSoup:
     response = requests.get(url)
-    if response.status_code != 200: return None
+    if response.status_code >= 400: return None
     return bs4.BeautifulSoup(response.content, "html.parser")

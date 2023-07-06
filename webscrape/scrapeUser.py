@@ -9,7 +9,9 @@ def readInfo(username: str, websiteInfo: dict) -> Info:
     if soup == None: return None
 
     info = Info(name=websiteInfo["name"], url=url, username=None, description=None)
-    if "scrape" not in websiteInfo.keys(): return info
+    if "scrape" not in websiteInfo.keys(): 
+        info.username = username
+        return info
 
     for _, (key, scrapeInfo) in enumerate(websiteInfo["scrape"].items()):
         result = scrape.scrape(soup, scrapeInfo["tag"], {scrapeInfo["findId"]: scrapeInfo["findValue"]})
@@ -25,7 +27,11 @@ def readInfo(username: str, websiteInfo: dict) -> Info:
             return None
 
         if "regex" in keys:
-            content = re.match(scrapeInfo["regex"], result['content'])
+            content = re.search(scrapeInfo['regex'], result['content'])
+            if content:
+                content = content.group(0)
+            else:
+                content = username
         else:
             content = result['content']
         
